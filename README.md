@@ -1,1 +1,1 @@
-# C++-server
+# A server based on C++
