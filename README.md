@@ -1,1 +1,1 @@
-# C-server
+# C++-server
