@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include "logger.h"
 #define PORT 8080
 using namespace std;
 
@@ -16,6 +17,7 @@ map<string, requesthandler> get_table;
 map<string, requesthandler> post_table;
 void setuproutes()
 {
+    LOG_INFO("Setting up routes");
     get_table["/"] = [](const string& request){
         return "hello world!";
     };
@@ -35,6 +37,7 @@ void setuproutes()
 
 pair<string, string> parseHttpRequest(const string& request)
 {
+    LOG_INFO("Parsing HTTP requests");
     size_t method_end = request.find(" ");
     string method = request.substr(0, method_end);
     size_t uri_end = request.find(" ", method_end + 1);
@@ -44,6 +47,7 @@ pair<string, string> parseHttpRequest(const string& request)
 
 string handlerequest(const string& method, const string& uri, const string& request)
 {
+    LOG_INFO("Handling HTTP request for URI: %s", uri.c_str());
     string response_body;
     if(method == "POST")
     {
@@ -62,6 +66,7 @@ int main()
 {
     int server_fd, new_socket;
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    LOG_INFO("Socket created!");
     struct sockaddr_in address;
     int addlen = sizeof(address);
     address.sin_addr.s_addr = INADDR_ANY;
@@ -70,20 +75,25 @@ int main()
     
     bind(server_fd, (struct sockaddr*)&address, addlen);
     listen(server_fd, 3);
+    LOG_INFO("Listening on PORT %d", PORT);
     setuproutes();
+    LOG_INFO("Server starting");
     while(true)
     {
+        //accept connection
         new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addlen);
+        //read request
         char buffer[1024] = {0};
         read(new_socket, buffer, 1024);
         string request(buffer);
-        cout << request << endl;
-        //string uri = request.substr(request.find(" ") + 1);
-        // uri = uri.substr(0, uri.find(" "));
+        LOG_INFO("Receiving request\n %s", request.c_str());
+        //parse request
         auto [method, uri] = parseHttpRequest(request);
         string response_body;
+        //handle request
         response_body = handlerequest(method, uri, request);
-        cout << response_body << endl;
+        LOG_INFO("Sending back: %s", response_body.c_str());
+        //send back
         string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n" + response_body;
         send(new_socket, response.c_str(), response.size(), 0);
         close(new_socket);
