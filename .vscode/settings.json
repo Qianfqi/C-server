@@ -4,6 +4,8 @@
         "iosfwd": "cpp",
         "stdexcept": "cpp",
         "*.tcc": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "thread": "cpp",
+        "future": "cpp"
     }
 }
