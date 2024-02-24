@@ -1,7 +1,8 @@
-#include <string.h>
+#pragma once
+#include <string>
 #include <iostream>
 #include <sqlite3.h>
-#include "logger.h"
+#include "Logger.h"
 using namespace std;
 
 class database{
